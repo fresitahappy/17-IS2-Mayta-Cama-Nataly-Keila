@@ -21,6 +21,9 @@ const loanList = document.querySelector("#loanList");
 const emptyState = document.querySelector("#emptyState");
 const activeCount = document.querySelector("#activeCount");
 
+// Ficha 17: referencia al selector de filtro por categoría
+const categoryFilter = document.querySelector("#categoryFilter");
+
 function todayISO() {
   return new Date().toISOString().slice(0, 10);
 }
@@ -41,6 +44,12 @@ function activeEquipmentIds(loans) {
   return new Set(loans.filter((loan) => loan.status === "Activo").map((loan) => loan.equipmentId));
 }
 
+// Ficha 17: obtiene la categoría de un equipo a partir de su id
+function categoryOf(equipmentId) {
+  const item = equipmentCatalog.find((eq) => eq.id === equipmentId);
+  return item ? item.category : "Sin categoría";
+}
+
 function renderEquipmentOptions() {
   const current = equipmentSelect.value;
   const busy = activeEquipmentIds(loadLoans());
@@ -55,18 +64,40 @@ function renderEquipmentOptions() {
   equipmentSelect.value = current;
 }
 
+// Ficha 17: llena el selector de categorías con las categorías únicas del catálogo
+function renderCategoryFilterOptions() {
+  const current = categoryFilter.value;
+  const categories = [...new Set(equipmentCatalog.map((item) => item.category))].sort();
+  categoryFilter.innerHTML = '<option value="">Todas las categorías</option>';
+  categories.forEach((category) => {
+    const option = document.createElement("option");
+    option.value = category;
+    option.textContent = category;
+    categoryFilter.append(option);
+  });
+  categoryFilter.value = current;
+}
+
 function formatDate(dateValue) {
   return new Intl.DateTimeFormat("es-PE", { dateStyle: "medium" }).format(new Date(`${dateValue}T00:00:00`));
 }
 
 function renderLoans() {
   const loans = loadLoans();
+  const selectedCategory = categoryFilter.value;
+
+  // Ficha 17: filtra los préstamos según la categoría elegida antes de dibujar la tabla
+  const visibleLoans = selectedCategory
+    ? loans.filter((loan) => categoryOf(loan.equipmentId) === selectedCategory)
+    : loans;
+
   loanList.innerHTML = "";
-  loans.forEach((loan) => {
+  visibleLoans.forEach((loan) => {
     const row = document.createElement("tr");
     const isActive = loan.status === "Activo";
     row.innerHTML = `
       <td>${loan.equipmentName}</td>
+      <td>${categoryOf(loan.equipmentId)}</td>
       <td>${loan.borrower}</td>
       <td>${formatDate(loan.loanDate)}</td>
       <td>${formatDate(loan.returnDate)}</td>
@@ -74,9 +105,16 @@ function renderLoans() {
       <td>${isActive ? `<button type="button" class="return-btn" data-id="${loan.id}">Registrar devolución</button>` : "—"}</td>`;
     loanList.append(row);
   });
+
   const active = loans.filter((loan) => loan.status === "Activo").length;
   activeCount.textContent = `${active} activo${active === 1 ? "" : "s"}`;
-  emptyState.hidden = loans.length !== 0;
+
+  // Ficha 17: estado vacío según si hay préstamos en general o solo en la categoría elegida
+  emptyState.hidden = visibleLoans.length !== 0;
+  emptyState.textContent = selectedCategory
+    ? `No hay préstamos registrados en la categoría "${selectedCategory}".`
+    : "Aún no hay préstamos registrados.";
+
   renderEquipmentOptions();
 }
 
@@ -130,6 +168,11 @@ loanList.addEventListener("click", (event) => {
   renderLoans();
 });
 
+// Ficha 17: al cambiar la categoría seleccionada, se vuelve a dibujar la tabla filtrada
+categoryFilter.addEventListener("change", () => {
+  renderLoans();
+});
+
 document.querySelector("#resetDemoBtn").addEventListener("click", () => {
   if (confirm("¿Desea eliminar todos los préstamos guardados en este navegador?")) {
     localStorage.removeItem(STORAGE_KEY);
@@ -140,4 +183,5 @@ document.querySelector("#resetDemoBtn").addEventListener("click", () => {
 
 loanDateInput.value = todayISO();
 returnDateInput.value = todayISO();
+renderCategoryFilterOptions();
 renderLoans();
