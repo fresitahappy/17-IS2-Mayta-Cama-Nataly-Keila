@@ -52,12 +52,19 @@
           </div>
           <span class="counter" id="activeCount">0 activos</span>
         </div>
-
+<!-- NUEVO: Ficha 17 - filtro por categoría -->
+<div class="filter-bar">
+  <label for="categoryFilter">Filtrar por categoría</label>
+  <select id="categoryFilter">
+    <option value="">Todas las categorías</option>
+  </select>
+</div>
         <div class="table-wrap">
           <table>
             <thead>
               <tr>
                 <th>Equipo</th>
+                <th>Categoría</th>   <!-- NUEVO -->
                 <th>Solicitante</th>
                 <th>Préstamo</th>
                 <th>Devolución prevista</th>
