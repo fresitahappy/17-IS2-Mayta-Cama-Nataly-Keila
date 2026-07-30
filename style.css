@@ -47,6 +47,9 @@ button { border: 0; border-radius: 7px; padding: .67rem .9rem; font: inherit; fo
 .form-message { min-height: 1.3rem; color: var(--danger); font-size: .9rem; margin: .75rem 0 0; }
 .section-heading { display: flex; justify-content: space-between; gap: .75rem; align-items: flex-start; }
 .counter { background: var(--sky); color: var(--navy); border-radius: 20px; padding: .35rem .65rem; font-size: .82rem; font-weight: 700; white-space: nowrap; }
+.filter-bar { display: flex; align-items: center; gap: .6rem; margin: 1rem 0; flex-wrap: wrap; }
+.filter-bar label { margin: 0; white-space: nowrap; }
+.filter-bar select { width: auto; min-width: 200px; }
 .table-wrap { overflow-x: auto; }
 table { width: 100%; min-width: 650px; border-collapse: collapse; font-size: .9rem; }
 th, td { border-bottom: 1px solid var(--line); padding: .72rem .5rem; text-align: left; vertical-align: middle; }
